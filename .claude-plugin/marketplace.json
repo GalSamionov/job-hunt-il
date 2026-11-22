@@ -1,0 +1,11 @@
+{
+  "name": "job-hunt-il",
+  "owner": { "name": "Gal Samionov" },
+  "plugins": [
+    {
+      "name": "job-hunt-il",
+      "source": "./",
+      "description": "סוכן חיפוש עבודה בעברית לכל מחפש עבודה בישראל"
+    }
+  ]
+}
