@@ -49,7 +49,7 @@ Write with the page's database tool (ArtifactData). Use one batch for many rows.
 
 | Where | Fields |
 |---|---|
-| document `settings/main` | `first` (the day the user started searching, YYYY-MM-DD), `profile` `{g, level}`, `plan` `{jobs, outreach, follow}` |
+| document `settings/main` | `first` (the day the user started searching, YYYY-MM-DD), `profile` `{g, level}`, `plan` `{jobs, outreach, follow}`, `auto` (true once scheduled tasks exist) |
 | collection `cvs` | `name`, `summary`, `updated` |
 | collection `applications` | `date`, `title`, `company`, `city`, `source`, `link`, `track`, `cv_version`, `status`, `why`, `next_step`, `next_date`, `contact`, `notes` |
 | collection `contacts` | `date`, `name`, `title`, `company`, `profile_link`, `channel`, `reason`, `message`, `status`, `last_contact`, `next_date`, `notes`, `nudge` |
@@ -86,6 +86,15 @@ Bring at most the daily plan numbers. An empty house is better than a filler rol
 5. Report: what was done, what was not and why.
 
 Never act on `found`, `prepared` or `skipped` rows. Approval in the town never replaces the approval in chat.
+
+## Run by itself (offer this at setup)
+Without a schedule the user has to come to the chat and ask. With one, they only decide in the town.
+If the session has a tool for scheduled tasks, offer it once, and create the tasks only after a yes:
+- **Morning fill:** Sunday to Thursday at an hour the user picks. It runs "Fill the town" and sends nothing.
+- **Pick-up:** two or three fixed times a day that the user picks. It reads the database; if there are approved items it shows the batch and asks for the one approval, with a notification if the tool supports it. If nobody answers, it stops there and nothing is sent.
+
+After creating them, set `auto: true` in `settings/main` (update, keep the other fields). The town then tells the user that Claude collects the decisions by itself. If the user cancels the tasks, set it back to `false`.
+A scheduled run follows the same rules as a chat: approval in the town is never enough to send.
 
 ## Writing rules
 - A row that already exists must be read before it is changed, and the write carries the version you read. If the write is refused because the row changed, read again and redo it.

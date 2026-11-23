@@ -417,6 +417,8 @@ JH.ROOMS = {
   tellBody: "כדי שקלוד יבצע את מה שאישרת, כתבו לו בצ'אט:",
   tellMorning: "וכדי שימלא את העיר מחדש כל בוקר:",
   tellNote: "לפני שליחה אמיתית קלוד יציג את הרשימה ויבקש אישור אחד.",
+  tellAuto: "אין צורך לעשות כלום: קלוד בודק את העיר בעצמו כמה פעמים ביום, מציג לך את הרשימה ומבקש אישור אחד.",
+  tellNow: "לא רוצים לחכות? כתבו לו בצ'אט:",
   copy: "העתקה",
   copied: "הועתק",
   runDemo: "הפעלת קלוד (הדגמה)",
@@ -985,7 +987,7 @@ JH.data = (function () {
     if (patch.plan) SV.data.plan = patch.plan;
     SV.write(); emit();
     if (D.mode !== "live") return Promise.resolve();
-    chains.settings = (chains.settings || Promise.resolve()).then(() => db.doc("settings/main").set({ first: D.settings.first, profile: D.settings.profile, plan: D.settings.plan })).catch((e) => console.warn("settings failed", e && e.code));
+    chains.settings = (chains.settings || Promise.resolve()).then(() => db.doc("settings/main").set({ first: D.settings.first, profile: D.settings.profile, plan: D.settings.plan, auto: !!D.settings.auto })).catch((e) => console.warn("settings failed", e && e.code));
     return chains.settings;
   };
 
@@ -1008,6 +1010,7 @@ JH.data = (function () {
           if (v.first) D.settings.first = day10(v.first);
           if (v.profile && (v.profile.g === "m" || v.profile.g === "f") && C.levels[v.profile.level]) D.settings.profile = { g: v.profile.g, level: v.profile.level };
           if (v.plan) D.settings.plan = Object.assign({}, C.defaultPlan, v.plan);
+          D.settings.auto = !!v.auto;                              // Claude sets this once it checks the town on a schedule
         } else if (!s.metadata.fromCache && D.settings.profile) D.saveSettings({});       // first visit: record the local choices
         if (!s.metadata.fromCache) done("settings");
         emit();
@@ -2278,7 +2281,8 @@ JH.rooms = (function () {
         "<p>" + (n ? "3. " : "2. ") + esc(l.d3) + "</p>" + pasteBox() +
         '<div class="two"><button type="button" class="mini" data-copy="' + esc(JH.PROMPT) + '">' + esc(r.connect.copyPrompt) + '</button><button type="button" class="mini" id="leaveLocal">' + esc(l.back) + "</button></div>";
     } else {
-      h = "<p>" + esc(r.tellBody) + "</p>" + phrase(C.runPhrase) + "<p>" + esc(r.tellMorning) + "</p>" + phrase(C.morningPhrase) + '<div class="note">' + esc(r.tellNote) + "</div>";
+      h = D.settings.auto ? '<div class="note">' + esc(r.tellAuto) + "</div><p>" + esc(r.tellNow) + "</p>" + phrase(C.runPhrase)
+        : "<p>" + esc(r.tellBody) + "</p>" + phrase(C.runPhrase) + "<p>" + esc(r.tellMorning) + "</p>" + phrase(C.morningPhrase) + '<div class="note">' + esc(r.tellNote) + "</div>";
     }
     E().onSheetClose = null;
     const b = E().sheet(S.waitText(n), h, { cls: "tell" });
