@@ -18,6 +18,7 @@ Keep two lists current: applications and outreach contacts. They are the memory 
 
 ## Fields
 - applications: id, date, company, title, city, source, link, track, cv_version, status, next_step, next_date, contact, notes.
+  In the town each application also carries the fit check: posted, fit, why, summary, requirements, match, gaps.
 - contacts: id, date, name, title, company, profile_link, channel, message_variant, status, last_contact, next_date, notes.
 
 ## Statuses

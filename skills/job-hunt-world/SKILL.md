@@ -51,7 +51,7 @@ Write with the page's database tool (ArtifactData). Use one batch for many rows.
 |---|---|
 | document `settings/main` | `first` (the day the user started searching, YYYY-MM-DD), `profile` `{g, level}`, `plan` `{jobs, outreach, follow}`, `auto` (true once scheduled tasks exist) |
 | collection `cvs` | `name`, `summary`, `updated` |
-| collection `applications` | `date`, `title`, `company`, `city`, `source`, `link`, `track`, `cv_version`, `status`, `why`, `next_step`, `next_date`, `contact`, `notes` |
+| collection `applications` | `date`, `title`, `company`, `city`, `source`, `link`, `posted`, `track`, `cv_version`, `status`, `fit`, `why`, `summary`, `requirements`, `match`, `gaps`, `next_step`, `next_date`, `contact`, `notes` |
 | collection `contacts` | `date`, `name`, `title`, `company`, `profile_link`, `channel`, `reason`, `message`, `status`, `last_contact`, `next_date`, `notes`, `nudge` |
 | collection `requests` | written by the page: `type`, `text`, `status` (`open` or `done`), `date` |
 
@@ -71,7 +71,13 @@ Statuses:
 
 ## Fill the town ("בוקר טוב, תמלא לי את העיר להיום")
 1. Read the profile and list the database. Dedupe against everything already there, including `skipped`.
-2. Run daily-job-round for the user's tracks. Write each new role as an application with `status: "found"`, a real `link` you checked is open, `cv_version` set to one of the user's version names, and `why`: one short Hebrew line on why it fits this user.
+2. Run daily-job-round for the user's tracks. Open and read the full posting of every role before writing it; a role whose posting you could not read does not go in. Write each new role as an application with `status: "found"`, a real `link` you checked is open, `posted`, `cv_version` set to one of the user's version names, and the fit check the user would otherwise do by hand:
+   - `summary`: two Hebrew lines on what the job is.
+   - `requirements`: the 3 to 6 main requirements, as the posting states them. Never add or soften one.
+   - `match`: what in this user's CV answers those requirements.
+   - `gaps`: what is missing or unclear, said plainly. An empty list only when there really is none.
+   - `fit`: `high`, `medium` or `low`, from requirements against the CV. Do not bring `low` unless the user asked for a wider net.
+   - `why`: one short Hebrew line, the single strongest reason to apply.
 3. On outreach days (Sunday to Thursday), prepare today's contacts with recruiter-outreach. Write each as a contact with `status: "prepared"`, `reason` (one short Hebrew line: why this person) and the full `message` text.
 4. Update statuses that changed since yesterday (replies, interview dates). The follow-up house and the interview house read them.
 5. Tell the user in two lines what is waiting in each house, and open the town.

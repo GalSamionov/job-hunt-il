@@ -30,9 +30,11 @@
 3. החזר "קובץ יום": בלוק קוד אחד של JSON בלבד, במבנה הזה:
 {"jobhunt":1,"settings":{"first":"YYYY-MM-DD"},
  "cvs":[{"name":"","summary":"","updated":"YYYY-MM-DD"}],
- "applications":[{"id":"","title":"","company":"","city":"","source":"","link":"","cv_version":"","status":"found","why":"","date":"YYYY-MM-DD","next_step":"","next_date":""}],
+ "applications":[{"id":"","title":"","company":"","city":"","source":"","link":"","posted":"YYYY-MM-DD","cv_version":"","status":"found","fit":"high","why":"","summary":"","requirements":[""],"match":[""],"gaps":[""],"date":"YYYY-MM-DD","next_step":"","next_date":""}],
  "contacts":[{"id":"","name":"","title":"","company":"","profile_link":"","reason":"","message":"","status":"prepared","date":"YYYY-MM-DD","last_contact":"","next_date":"","notes":""}]}
 השדה first הוא היום שבו התחלתי לחפש. השדה why הוא שורה אחת בעברית שמסבירה למה המשרה מתאימה לי. השדה cv_version הוא שם הגרסה שכדאי לשלוח.
+לכל משרה קרא את המודעה המלאה לפני שאתה מביא אותה, ומלא: summary (שתי שורות על התפקיד), requirements (3 עד 6 דרישות עיקריות, כפי שהן במודעה), match (מה בקורות החיים שלי עונה עליהן), gaps (מה חסר לי או לא ברור, בכנות), fit (אחד מ: high, medium, low) ו-posted (תאריך הפרסום).
+אם לא הצלחת לקרוא את המודעה, אל תביא את המשרה. אל תביא משרות עם fit נמוך אלא אם ביקשתי.
 ערכי status למשרה: found (חדשה), to_apply, applied, screening_call, interview, home_task, offer, rejected, no_answer.
 ערכי status לפנייה: prepared (מוכנה), sent, accepted, replied, call_set, cold.
 שמור על אותו id לאותה משרה ולאותו אדם בכל הקבצים. כלול בכל קובץ יום גם את מה שכבר בתהליך, עם הסטטוס המעודכן.

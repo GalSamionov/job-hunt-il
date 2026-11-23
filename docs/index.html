@@ -241,6 +241,15 @@ body, #stage, #stage button, #stage input, #stage textarea { font-family: Pix, H
 .tell .field { margin-top: .5em; min-height: 6em; font-size: .75em; direction: ltr; text-align: left; }
 .tell .two { margin-top: .9em; }
 a.btn { text-decoration: none; }
+.tag.fit-high { background: #d8f7e4; color: #14713b; } .tag.fit-medium { background: #ffe7c7; color: #8a4b00; } .tag.fit-low { background: #ffd9de; color: #8a1f2d; }
+.mini.wide { width: 100%; padding: .45em; font-size: .8em; }
+.jd { background: var(--mist); box-shadow: var(--lift); padding: .6em .7em; font-size: .82em; line-height: 1.35; }
+.jd p { margin: 0 0 .4em; }
+.jd h5 { margin: .55em 0 .2em; font-size: 1em; font-weight: 400; color: var(--soft); }
+.jd ul { margin: 0; padding: 0; list-style: none; }
+.jd li { position: relative; padding-inline-start: 1.2em; margin-bottom: .2em; }
+.jd li::before { content: "·"; position: absolute; inset-inline-start: .3em; }
+.jd ul.ok li::before { content: "✓"; color: #14713b; inset-inline-start: 0; } .jd ul.gap li::before { content: "!"; color: #b3261e; inset-inline-start: .25em; }
 
 </style>
 </head>
@@ -430,6 +439,8 @@ JH.ROOMS = {
   jobs: {
     title: "בית האיתור", fresh: "משרות חדשות", approved: "מאושרות, מחכות להגשה", applied: "הוגשו", apply: "להגיש", skip: "לדלג", undo: "ביטול",
     cv: "גרסה", source: "מקור", why: "למה מתאים", goal: "יעד יומי", open: "פתיחת המודעה",
+    more: "מה המשרה דורשת", less: "סגירת הפרטים", reqs: "מה מחפשים", match: "מה מתאים אצלך", gaps: "מה חסר או לא ברור", posted: "פורסמה",
+    fit: { high: "התאמה גבוהה", medium: "התאמה בינונית", low: "התאמה חלקית" },
   },
   cv: {
     title: "בית קורות החיים", versions: "הגרסאות שלי", map: "איזו גרסה נשלחת לאן", none: "עוד אין משרות מאושרות. מאשרים בבית האיתור.",
@@ -505,6 +516,17 @@ JH.DEMO = {
   cities: ["תל אביב", "פתח תקווה", "הרצליה", "רמת גן", "חיפה", "רחובות", "ירושלים"],
   sources: ["לינקדאין", "דרושים", "AllJobs", "JobMaster", "אתר החברה"],
   why: ["דורשים ניסיון שיש לך בדיוק", "פורסמה אתמול, מעט מגישים", "קרוב לבית, משרה מלאה", "תחום שסימנת בעדיפות", "חברה שמגייסת עכשיו בהיקף גדול"],
+  detail: [
+    { summary: "הובלת הטמעה של כלי AI ואוטומציות בארגון, מול מנהלים ומשתמשים.",
+      reqs: ["3 שנים ומעלה בהטמעת מערכות או כלי AI", "ניסיון בבניית אוטומציות ותהליכי עבודה", "עבודה מול הנהלה והדרכת משתמשים", "אנגלית ברמה גבוהה"],
+      match: ["הובלת הטמעת AI בארגון", "בניית סוכנים ואוטומציות", "הדרכות להנהלה ולעובדים"], gaps: ["לא צוין ניסיון עם הכלי הספציפי שבמודעה"] },
+    { summary: "ניהול פרויקטים רוחביים מקצה לקצה: לוחות זמנים, ספקים, תקציב ודיווח להנהלה.",
+      reqs: ["4 שנים ומעלה בניהול פרויקטים", "ניהול ספקים ותקציב", "שליטה בכלי ניהול משימות", "יכולת הצגה מול הנהלה"],
+      match: ["ניהול פרויקטים מרובי ספקים", "עמידה בלוחות זמנים ובתקציב", "דיווח שוטף להנהלה"], gaps: ["תעודת PMP מוזכרת כיתרון"] },
+    { summary: "אחריות על מערכות המידע של הארגון: ERP, CRM, דוחות ואינטגרציות.",
+      reqs: ["ניסיון בניהול מערכות ERP או CRM", "אפיון תהליכים ועבודה מול ספקים", "בניית דוחות ולוחות מחוונים", "ידע ב-SQL"],
+      match: ["ניהול מערכות מידע בארגון", "אפיון והטמעה מול משתמשים", "בניית דוחות BI"], gaps: ["המערכת הספציפית שבמודעה לא מופיעה בקורות החיים"] },
+  ],
   cvs: [
     { name: "AI ואוטומציה", summary: "מוביל הטמעה, סוכנים ואוטומציות" },
     { name: "ניהול פרויקטים", summary: "לוחות זמנים, ספקים ותקציב" },
@@ -554,9 +576,11 @@ JH.PROMPT = [
   '3. החזר "קובץ יום": בלוק קוד אחד של JSON בלבד, במבנה הזה:',
   '{"jobhunt":1,"settings":{"first":"YYYY-MM-DD"},',
   ' "cvs":[{"name":"","summary":"","updated":"YYYY-MM-DD"}],',
-  ' "applications":[{"id":"","title":"","company":"","city":"","source":"","link":"","cv_version":"","status":"found","why":"","date":"YYYY-MM-DD","next_step":"","next_date":""}],',
+  ' "applications":[{"id":"","title":"","company":"","city":"","source":"","link":"","posted":"YYYY-MM-DD","cv_version":"","status":"found","fit":"high","why":"","summary":"","requirements":[""],"match":[""],"gaps":[""],"date":"YYYY-MM-DD","next_step":"","next_date":""}],',
   ' "contacts":[{"id":"","name":"","title":"","company":"","profile_link":"","reason":"","message":"","status":"prepared","date":"YYYY-MM-DD","last_contact":"","next_date":"","notes":""}]}',
   "השדה first הוא היום שבו התחלתי לחפש. השדה why הוא שורה אחת בעברית שמסבירה למה המשרה מתאימה לי. השדה cv_version הוא שם הגרסה שכדאי לשלוח.",
+  "לכל משרה קרא את המודעה המלאה לפני שאתה מביא אותה, ומלא: summary (שתי שורות על התפקיד), requirements (3 עד 6 דרישות עיקריות, כפי שהן במודעה), match (מה בקורות החיים שלי עונה עליהן), gaps (מה חסר לי או לא ברור, בכנות), fit (אחד מ: high, medium, low) ו-posted (תאריך הפרסום).",
+  "אם לא הצלחת לקרוא את המודעה, אל תביא את המשרה. אל תביא משרות עם fit נמוך אלא אם ביקשתי.",
   "ערכי status למשרה: found (חדשה), to_apply, applied, screening_call, interview, home_task, offer, rejected, no_answer.",
   "ערכי status לפנייה: prepared (מוכנה), sent, accepted, replied, call_set, cold.",
   "שמור על אותו id לאותה משרה ולאותו אדם בכל הקבצים. כלול בכל קובץ יום גם את מה שכבר בתהליך, עם הסטטוס המעודכן.",
@@ -924,9 +948,12 @@ JH.data = (function () {
   const day10 = (v) => String(v || "").slice(0, 10);
   const url = (v) => (/^https?:\/\//i.test(String(v || "")) ? String(v) : "");         // links come from outside: only web addresses are kept
   const store = () => (D.mode === "local" ? SV.data.mine : SV.data.demo);
+  const lines = (v) => (Array.isArray(v) ? v : typeof v === "string" && v ? v.split(/\n|;/) : []).map((x) => String(x).trim()).filter(Boolean).slice(0, 8);
+  const fitOf = (v) => (typeof v === "number" ? (v >= 75 ? "high" : v >= 50 ? "medium" : "low") : /^(high|medium|low)$/.test(String(v || "")) ? String(v) : "");
 
-  /* Field names follow the plugin's tracker; older trackers used a few other names, read here as fallbacks. */
-  const normApp = (id, d) => ({ id, title: d.title || d.role || "", company: d.company || "", city: d.city || "", source: d.source || "", link: url(d.link), cv: d.cv_version || d.cv || "", status: d.status || "found", why: d.why || "", date: day10(d.date || d.statusDate), next_step: d.next_step || "", next_date: day10(d.next_date), notes: d.notes || d.note || "" });
+  /* A job also carries what the posting asks for and how it fits this person: summary, requirements, match, gaps, fit.
+     Field names follow the plugin's tracker; older trackers used a few other names, read here as fallbacks. */
+  const normApp = (id, d) => ({ id, title: d.title || d.role || "", company: d.company || "", city: d.city || "", source: d.source || "", link: url(d.link), cv: d.cv_version || d.cv || "", status: d.status || "found", why: d.why || "", date: day10(d.date || d.statusDate), next_step: d.next_step || "", next_date: day10(d.next_date), notes: d.notes || d.note || "" , summary: d.summary || "", reqs: lines(d.requirements || d.reqs), match: lines(d.match), gaps: lines(d.gaps), fit: fitOf(d.fit), posted: day10(d.posted) });
   const normContact = (id, d) => ({ id, name: d.name || "", title: d.title || "", company: d.company || "", link: url(d.profile_link || d.link), reason: d.reason || "", message: d.message || "", status: d.status || "prepared", date: day10(d.date), last: day10(d.last_contact || d.date), next_date: day10(d.next_date), nudge: d.nudge || "", notes: d.notes || "" });
   const normCv = (id, d) => ({ id, name: d.name || id, summary: d.summary || "", updated: day10(d.updated) });
   const normReq = (id, d) => ({ id, type: d.type || "", text: d.text || "", status: d.status || "open", date: day10(d.date) });
@@ -1029,6 +1056,8 @@ JH.data = (function () {
     for (let i = 0; i < n; i++) {
       const title = titles[i % titles.length];
       dm.apps.push({ id: "a" + dm.seq++, title, company: companies[i % companies.length], city: U.pick(X.cities), source: U.pick(X.sources), link: "", cv: X.cvs[trackOf(title)].name, status: "found", why: U.pick(X.why), date: today, next_step: "", next_date: "", notes: "" });
+      const det = X.detail[trackOf(title)], job = dm.apps[dm.apps.length - 1];
+      job.summary = det.summary; job.reqs = det.reqs.slice(); job.match = det.match.slice(); job.gaps = i % 3 ? det.gaps.slice() : []; job.fit = i % 3 ? (i % 2 ? "high" : "medium") : "high"; job.posted = SV.shift(today, -(i % 3));
     }
     const people = U.shuffle(X.people), msg = JH.PROFILE.g === "f" ? X.messageF : X.message;
     for (let i = 0; i < Math.min(8, D.settings.plan.outreach); i++) {
@@ -2062,13 +2091,21 @@ JH.rooms = (function () {
   const on = (sel, fn) => body.querySelectorAll(sel).forEach((b) => b.addEventListener("click", () => fn(b.dataset.id, b)));
 
   /* ---------- Sourcing ---------- */
+  let openJob = null;
+  /* What the posting asks for and how it fits: the same things one checks before really applying. */
+  function jobDetail(a, t) {
+    const list = (title, rows, cls) => (rows && rows.length ? "<h5>" + esc(title) + '</h5><ul class="' + cls + '">' + rows.map((r) => "<li>" + esc(r) + "</li>").join("") + "</ul>" : "");
+    return '<div class="jd">' + (a.summary ? "<p>" + esc(a.summary) + "</p>" : "") + list(t.reqs, a.reqs, "") + list(t.match, a.match, "ok") + list(t.gaps, a.gaps, "gap") + "</div>";
+  }
+  const hasDetail = (a) => !!(a.summary || (a.reqs && a.reqs.length) || (a.match && a.match.length) || (a.gaps && a.gaps.length));
   function jobs() {
     const t = R().jobs, found = D.found(), ok = D.approvedApps(), day = SV.day();
     let h = meter(t.goal, day.approved, D.settings.plan.jobs);
     h += head(t.fresh, found.length);
     h += found.length ? found.map((a) =>
       '<div class="card"><div class="card-main"><b>' + esc(a.title) + "</b><span>" + esc([a.company, a.city].filter(Boolean).join(", ")) + "</span>" + (a.why ? "<small>" + esc(a.why) + "</small>" : "") + "</div>" +
-      '<div class="tags">' + tag(t.cv, a.cv) + tag(t.source, a.source) + (a.link ? '<a class="tag link" href="' + esc(a.link) + '" target="_blank" rel="noopener">' + esc(t.open) + "</a>" : "") + "</div>" +
+      '<div class="tags">' + (a.fit ? '<span class="tag fit-' + a.fit + '">' + esc(t.fit[a.fit]) + "</span>" : "") + tag(t.cv, a.cv) + tag(t.source, a.source) + (a.posted ? tag(t.posted, a.posted.slice(8, 10) + "." + a.posted.slice(5, 7)) : "") + (a.link ? '<a class="tag link" href="' + esc(a.link) + '" target="_blank" rel="noopener">' + esc(t.open) + "</a>" : "") + "</div>" +
+      (hasDetail(a) ? (openJob === a.id ? jobDetail(a, t) : "") + '<button type="button" class="mini wide" data-act="more" data-id="' + esc(a.id) + '">' + esc(openJob === a.id ? t.less : t.more) + "</button>" : "") +
       '<div class="acts"><button type="button" class="act yes" data-act="apply" data-id="' + esc(a.id) + '">' + esc(t.apply) + '</button><button type="button" class="act no" data-act="skip" data-id="' + esc(a.id) + '">' + esc(t.skip) + "</button></div></div>").join("")
       : empty(D.mode === "live" && !ok.length && !D.appliedToday().length ? R().emptyLive : R().allClear);
     if (ok.length) h += head(t.approved, ok.length) + ok.map((a) => '<div class="row"><div><b>' + esc(a.title) + "</b><span>" + esc(a.company) + '</span></div><button type="button" class="mini" data-act="undo" data-id="' + esc(a.id) + '">' + esc(t.undo) + "</button></div>").join("");
@@ -2077,6 +2114,7 @@ JH.rooms = (function () {
     on('[data-act="apply"]', (id, b) => { A.sfx.coin(SV.day().approved); E().xp(C.xp.approve, b); E().count("approved", b); D.setApp(id, { status: "to_apply" }); });
     on('[data-act="skip"]', (id, b) => { A.sfx.tap(); E().xp(C.xp.skip, b); D.setApp(id, { status: "skipped" }); });
     on('[data-act="undo"]', (id) => { A.sfx.tap(); D.setApp(id, { status: "found" }); });
+    on('[data-act="more"]', (id) => { A.sfx.tap(); openJob = openJob === id ? null : id; const keep = body.scrollTop; jobs(); body.scrollTop = keep; });
   }
 
   /* ---------- CV versions ---------- */
