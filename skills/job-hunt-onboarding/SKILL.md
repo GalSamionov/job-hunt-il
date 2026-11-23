@@ -54,7 +54,8 @@ Run daily-job-round for the top track (5 to 10 roles) with CV versions. Help the
 Run job-hunt-world only after every question in its gate is answered; if a step above was skipped, go back and ask before building. The town is created from what the user defined in the steps above: the character's level from the career analysis, the CV house from their versions, the daily plan from their targets, the day counter from the day they started searching, and the sourcing house from the first round. Open it and walk the user through one decision in each house.
 
 ## Step 9: From now on
-Explain: "בוקר טוב, תמלא לי את העיר להיום" every morning and "תריץ את מה שאישרתי בעיר" after deciding, or "יום חיפוש" for the same routine in chat; paste any recruiter message for a reply draft; "יש לי ראיון" before interviews; "עדכן את הפרופיל" when goals change; outreach Sunday to Thursday, about 15 to 20 a day. Offer a daily reminder if a scheduling tool exists.
+Offer the scheduled task from job-hunt-world ("Run by itself"): three runs a day that fill the town, apply where the user allowed it and carry out the decisions, with the "שליחה לקלוד עכשיו" button in the town. Create it only after a yes.
+Then explain: with the task, the user only plays the town, and the results come back as events in the street. Without it, "בוקר טוב, תמלא לי את העיר להיום" every morning and "תריץ את מה שאישרתי בעיר" after deciding, or "יום חיפוש" for the same routine in chat. Also: paste any recruiter message for a reply draft; "יש לי ראיון" before interviews; "עדכן את הפרופיל" when goals change; outreach Sunday to Thursday, about 15 to 20 a day.
 
 ## Resuming
 If onboarding stopped midway, read what exists and continue from the first missing step.
