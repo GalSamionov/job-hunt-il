@@ -942,14 +942,16 @@ JH.data = (function () {
   const SV = JH.save, C = JH.CONFIG, U = JH.util;
   const D = { mode: "demo", loaded: false, offline: false, apps: [], contacts: [], cvs: [], requests: [], settings: null };
   const subs = [], chains = {};
-  let db = null;
+  let db = null, settingsDoc = false;
   const emit = () => subs.slice().forEach((f) => { try { f(); } catch (e) { console.error(e); } });
   D.onChange = (f) => { subs.push(f); return () => { const i = subs.indexOf(f); if (i >= 0) subs.splice(i, 1); }; };
   const day10 = (v) => String(v || "").slice(0, 10);
-  const url = (v) => (/^https?:\/\//i.test(String(v || "")) ? String(v) : "");         // links come from outside: only web addresses are kept
+  /* Links come from outside: only web addresses are kept. An address written without https:// gets it. */
+  const url = (v) => { v = String(v || "").trim(); return /^https?:\/\//i.test(v) ? v : /^[a-z0-9-]+(\.[a-z0-9-]+)+(\/|$)/i.test(v) ? "https://" + v : ""; };
   const store = () => (D.mode === "local" ? SV.data.mine : SV.data.demo);
   const lines = (v) => (Array.isArray(v) ? v : typeof v === "string" && v ? v.split(/\n|;/) : []).map((x) => String(x).trim()).filter(Boolean).slice(0, 8);
-  const fitOf = (v) => (typeof v === "number" ? (v >= 75 ? "high" : v >= 50 ? "medium" : "low") : /^(high|medium|low)$/.test(String(v || "")) ? String(v) : "");
+  const FIT_WORDS = { "גבוהה": "high", "בינונית": "medium", "חלקית": "low", "נמוכה": "low" };
+  const fitOf = (v) => { if (typeof v === "number") { if (v > 0 && v <= 1) v *= 100; return v >= 75 ? "high" : v >= 50 ? "medium" : "low"; } v = String(v || "").trim().toLowerCase(); return /^(high|medium|low)$/.test(v) ? v : FIT_WORDS[v] || ""; };
 
   /* A job also carries what the posting asks for and how it fits this person: summary, requirements, match, gaps, fit.
      Field names follow the plugin's tracker; older trackers used a few other names, read here as fallbacks. */
@@ -974,7 +976,7 @@ JH.data = (function () {
       if (c.status === "replied" || c.status === "accepted") return true;
       if (c.status !== "sent") return false;
       if (c.next_date) return c.next_date <= today;
-      return !!c.last && SV.diff(c.last, today) >= gap;
+      return !c.last || SV.diff(c.last, today) >= gap;          // a sent message with no date at all is surfaced, not lost
     });
   };
   D.nudges = () => D.contacts.filter((c) => c.nudge === "approved");
@@ -1014,7 +1016,9 @@ JH.data = (function () {
     if (patch.plan) SV.data.plan = patch.plan;
     SV.write(); emit();
     if (D.mode !== "live") return Promise.resolve();
-    chains.settings = (chains.settings || Promise.resolve()).then(() => db.doc("settings/main").set({ first: D.settings.first, profile: D.settings.profile, plan: D.settings.plan, auto: !!D.settings.auto })).catch((e) => console.warn("settings failed", e && e.code));
+    // an existing document is merged into, so fields the page does not know (written by Claude) survive
+    const body = { first: D.settings.first, profile: D.settings.profile, plan: D.settings.plan };
+    chains.settings = (chains.settings || Promise.resolve()).then(() => (settingsDoc ? db.doc("settings/main").update(body) : db.doc("settings/main").set(body))).catch((e) => console.warn("settings failed", e && e.code));
     return chains.settings;
   };
 
@@ -1032,6 +1036,7 @@ JH.data = (function () {
       sub("cvs", normCv, (v) => (D.cvs = v));
       sub("requests", normReq, (v) => (D.requests = v));
       db.doc("settings/main").onSnapshot((s) => {
+        settingsDoc = s.exists;
         if (s.exists) {
           const v = s.data() || {};
           if (v.first) D.settings.first = day10(v.first);
@@ -1119,18 +1124,19 @@ JH.data = (function () {
     const apps = rows(o.applications || o.jobs), contacts = rows(o.contacts), cvs = rows(o.cvs);
     if (!apps.length && !contacts.length && !cvs.length) throw new Error("empty");
     if (!SV.data.mine) SV.data.mine = { seq: 1, apps: [], contacts: [], cvs: [], requests: [], first: null };
-    const m = SV.data.mine, kA = (x) => x.link || (x.company + "|" + x.title), kC = (x) => x.link || (x.name + "|" + x.company);
+    const m = SV.data.mine, nA = (x) => x.company + "|" + x.title, nC = (x) => x.name + "|" + x.company;
+    const same = (x, v, name) => (v.id && x.id === v.id) || (v.link && x.link === v.link) || name(x) === name(v);   // same id, same link, or same name and company
     let na = 0, nc = 0;
     apps.forEach((r) => {
       const v = normApp(String(r.id || ""), r); if (!v.title && !v.company) return;
-      const cur = m.apps.find((x) => (v.id && x.id === v.id) || kA(x) === kA(v));
+      const cur = m.apps.find((x) => same(x, v, nA));
       if (!cur) { if (!v.id) v.id = "m" + m.seq++; m.apps.push(v); na++; return; }
       const mine = (cur.status === "to_apply" || cur.status === "skipped") && v.status === "found" ? cur.status : v.status;
       Object.assign(cur, v, { id: cur.id, status: mine });
     });
     contacts.forEach((r) => {
       const v = normContact(String(r.id || ""), r); if (!v.name) return;
-      const cur = m.contacts.find((x) => (v.id && x.id === v.id) || kC(x) === kC(v));
+      const cur = m.contacts.find((x) => same(x, v, nC));
       if (!cur) { if (!v.id) v.id = "m" + m.seq++; m.contacts.push(v); nc++; return; }
       const mine = (cur.status === "approved" || cur.status === "skipped") && v.status === "prepared" ? cur.status : v.status;
       Object.assign(cur, v, { id: cur.id, status: mine, nudge: v.status === cur.status ? cur.nudge : "", message: cur.status === "approved" ? cur.message : v.message || cur.message });
@@ -1627,6 +1633,8 @@ JH.E = (function () {
     }
     SV.write();
   };
+  /* A decision taken back no longer counts toward today. */
+  E.uncount = function (key) { const day = SV.day(); day[key] = Math.max(0, (day[key] || 0) - 1); SV.write(); };
   let dockHtml = "";
   function hud(on) { $("hud").hidden = !on; $("dock").hidden = !on; $("hud2").hidden = !on; }
   function syncHud() {
@@ -2113,7 +2121,7 @@ JH.rooms = (function () {
     body.innerHTML = h + waitBar();
     on('[data-act="apply"]', (id, b) => { A.sfx.coin(SV.day().approved); E().xp(C.xp.approve, b); E().count("approved", b); D.setApp(id, { status: "to_apply" }); });
     on('[data-act="skip"]', (id, b) => { A.sfx.tap(); E().xp(C.xp.skip, b); D.setApp(id, { status: "skipped" }); });
-    on('[data-act="undo"]', (id) => { A.sfx.tap(); D.setApp(id, { status: "found" }); });
+    on('[data-act="undo"]', (id) => { A.sfx.tap(); E().uncount("approved"); D.setApp(id, { status: "found" }); });
     on('[data-act="more"]', (id) => { A.sfx.tap(); openJob = openJob === id ? null : id; const keep = body.scrollTop; jobs(); body.scrollTop = keep; });
   }
 
@@ -2194,7 +2202,7 @@ JH.rooms = (function () {
     body.innerHTML = h + waitBar();
     on('[data-act="send"]', (id, b) => { A.sfx.send(); E().xp(C.xp.outreach, b); E().count("outreach", b); D.setContact(id, { status: "approved" }); });
     on('[data-act="skip"]', (id, b) => { A.sfx.tap(); E().xp(C.xp.skip, b); D.setContact(id, { status: "skipped" }); });
-    on('[data-act="undo"]', (id) => { A.sfx.tap(); D.setContact(id, { status: "prepared" }); });
+    on('[data-act="undo"]', (id) => { A.sfx.tap(); E().uncount("outreach"); D.setContact(id, { status: "prepared" }); });
     on('[data-act="edit"]', (id) => { editing = id; render(); const ta = body.querySelector("#msgEdit"); if (ta) ta.focus(); });
     on('[data-act="save"]', (id) => { const v = body.querySelector("#msgEdit").value.trim(); editing = null; A.sfx.tap(); if (v) D.setContact(id, { message: v }); else render(); });
   }
