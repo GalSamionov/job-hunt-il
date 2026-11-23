@@ -448,7 +448,7 @@ JH.OW = {
   queue: "מחכות לך היום {n} החלטות בעיר.",
   firstDay: ["בחדר יש ארון עם כובעים וקישוטים שקונים בכוכבים, לוח לתכנון היום, לוח שנה ומחשב עם ההוראות לקלוד.", "כשמוכנים יוצאים מהדלת למטה. הסוכנים מחכים בבתים שלהם."],
   nextDay: "הסוכנים כבר בבתים שלהם. יוצאים מהדלת למטה.",
-  townHint: "הקישו על בית כדי ללכת אליו. בכל בית סוכן אחר, והחלטות שמחכות לך.",
+  townHint: "הקישו על בית כדי ללכת אליו. סוכן שעומד בחוץ מחכה לך עם עבודה.",
   bedEarly: "עוד לא נגעת בכלום היום. הסוכנים מחכים בעיר.",
   greet: [
     "אלה המשרות שמצאתי. {סמן|סמני} למה מגישים, ואני מטפל בשאר.",
@@ -1427,9 +1427,9 @@ JH.maps = (function () {
     const grass = new Uint8Array(W * H);
     lawns.forEach((l) => rect(l[0], l[1], l[2], l[3]).forEach((c) => (grass[c[1] * W + c[0]] = 1)));
     const TREES = [[0, 1, 0], [2, 1, 1], [7, 1, 1], [9, 1, 0], [0, 18, 1], [2, 18, 0], [7, 18, 0], [9, 18, 1]];
-    const LAMPS = [[3, 4], [6, 9], [3, 14]];
-    const CARS = [[5, 8, 449, 476]];
-    const PROPS = [[381, 1, 18], [270, 8, 18], [305, 6, 13], [279, 3, 9]];   // tile, x, y
+    const LAMPS = [[3, 9]];                                       // a calm street: one lamp, one bench, no cars or bins
+    const CARS = [];
+    const PROPS = [[381, 1, 18]];   // tile, x, y
     TREES.forEach((t) => m.cells.push([t[0], t[1]]));
     LAMPS.forEach((l) => m.cells.push(l));
     CARS.forEach((c) => { m.cells.push([c[0], c[1]]); m.cells.push([c[0], c[1] + 1]); });
@@ -1555,7 +1555,9 @@ JH.w3 = (function () {
     ctx.setTransform(s, 0, 0, s, -ox * s, -oy * s); ctx.imageSmoothingEnabled = false;
     ctx.drawImage(cur.base, 0, 0);
     if (def.id === "town" && !st.attract) { growth(ctx, def); decor(ctx); }
-    const things = (def.npcs || []).map((n) => ({ y: n.y, npc: n }));
+    // an agent stands outside only when there is work for you in its house: that is the town's count
+    const work = JH.data.loaded ? JH.data.queue() : [1, 1, 1, 1, 1];
+    const things = (def.npcs || []).filter((n) => def.id !== "town" || st.attract || work[n.agent] > 0).map((n) => ({ y: n.y, npc: n }));
     if (!st.attract) (def.dyn || []).forEach((a) => things.push({ y: a.tiles[0][1] - 0.01, ev: a }));
     if (!st.attract) things.push({ y: st.py, hero: true });
     things.sort((a, b) => a.y - b.y);
@@ -1573,7 +1575,7 @@ JH.w3 = (function () {
       }
     }
     ctx.drawImage(cur.over, 0, 0);
-    if (!st.attract) for (const a of def.acts.concat(def.dyn || []).filter((k) => !k.ev || k.id === "ev:" + (st.guideEv || ""))) {
+    if (!st.attract) for (const a of def.acts.concat(def.dyn || []).filter((k) => !k.ev || k.id === st.guide)) {
       const guide = a.id === st.guide;
       if (def.id === "home" || guide) marker(ctx, a.mark[0] * T, (a.mark[2] - a.mark[1]) * T - 8, guide ? "#ffd23f" : "#ffffff");
     }
@@ -1786,7 +1788,7 @@ JH.ow = (function () {
       const p = W3.project(l.at[0], l.at[1], l.at[2]);
       if (p.y < 0 || p.y > G.H - 60) continue;
       p.y = Math.max(p.y, 62);                                   // a roof half under the top bar keeps its plate in view
-      const n = l.room != null ? queue[l.room] : 0;
+      const n = 0; void queue;                                   // no counts on the plates: an agent outside is the sign of work
       const name = l.home ? JH.TEXT.home : JH.AGENTS[l.room].house;
       const col = l.home ? "#f2a23a" : JH.AGENTS[l.room].color;
       ctx.font = "16px Pix, Heebo, sans-serif";
@@ -1800,7 +1802,7 @@ JH.ow = (function () {
         ctx.fillStyle = "#ffffff"; ctx.direction = "ltr"; ctx.fillText(String(n), x0 + 13, y); ctx.direction = "rtl";
       }
     }
-    const ga = S.guide && m.acts.find((a) => a.id === S.guide);
+    const ga = S.guide && m.acts.concat(m.dyn || []).find((a) => a.id === S.guide);
     if (ga) {
       const p = W3.project(ga.mark[0], ga.mark[1], ga.mark[2]);
       if (p.y < 60 || p.y > G.H - 30) {
@@ -1849,7 +1851,7 @@ JH.E = (function () {
   /* A decision taken back no longer counts toward today. */
   E.uncount = function (key) { const day = SV.day(); day[key] = Math.max(0, (day[key] || 0) - 1); SV.write(); };
   let dockHtml = "";
-  function hud(on) { $("hud").hidden = !on; $("dock").hidden = !on; $("hud2").hidden = !on; }
+  function hud(on) { $("hud").hidden = !on; $("dock").hidden = true; $("hud2").hidden = !on; }   // no dock: the town itself is the menu
   function syncHud() {
     if (!D.loaded) return;
     const q = D.queue(), day = SV.day(), w = D.waiting();
@@ -2042,13 +2044,15 @@ JH.E = (function () {
   }
   E.goHome = goHome;
 
-  function nextStop() { const q = D.queue(); for (let i = 0; i < 5; i++) if (q[i]) return "room" + i; return null; }
+  /* Where the one arrow points: the most important street event, otherwise the next house with work. */
+  function nextStop() { const ev = OW.map && (OW.map.dyn || []).find((a) => a.ev.kind !== "star"); if (ev) return ev.id; const q = D.queue(); for (let i = 0; i < 5; i++) if (q[i]) return "room" + i; return null; }
+  E.nextStop = nextStop;
   function goTown(at, then) {
     E.wipe(() => {
       clearUi(); E.state = "town"; hud(true);
       OW.attract = false; OW.labelsOn = true;
       OW.enter("town", at); OW.guide = nextStop();
-      JH.career.place(OW.map);
+      JH.career.place(OW.map); OW.guide = nextStop();
       E.scene = OW; A.music("city"); syncHud();
     }, () => {
       const up = JH.career.newTiers(), P = JH.PLAY;
@@ -2238,7 +2242,10 @@ JH.career = (function () {
       return best;
     };
     m.dyn = [];
-    evs.forEach((ev) => {
+    // a calm street: the two most important events at a time, and one star. The next one comes in when one is opened.
+    const order = ["offer", "blocked", "reply", "mail", "interview", "hot", "reject"];
+    const shown = evs.filter((e) => e.kind !== "star").sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind)).slice(0, 2).concat(evs.filter((e) => e.kind === "star").slice(0, 1));
+    shown.forEach((ev) => {
       let at;
       if (ev.kind === "star") {
         const cells = []; for (let y = 2; y < m.h - 2; y++) for (let x = 0; x < W; x++) if (free(x, y)) cells.push([x, y]);
@@ -2255,7 +2262,7 @@ JH.career = (function () {
   K.open = function (ev) {
     const t = P().ev, A = JH.audio, G = JH.gfx, m = JH.ow.map, Ag = JH.AGENTS;
     const who = (i) => ({ who: Ag[i].name, icon: G.agentIconURL(i), color: Ag[i].light });
-    const done = () => { K.unplace(m, ev.id); E().syncHud(); };
+    const done = () => { K.unplace(m, ev.id); K.place(m); JH.ow.guide = E().nextStop(); E().syncHud(); };
     if (ev.kind === "star") {
       const s = K.st(); s.stars.got.push(ev.n); SV.write(); done();
       A.sfx.coin(6); E().xp(C.xp.star); return;
