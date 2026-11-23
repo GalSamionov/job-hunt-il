@@ -20,6 +20,9 @@ Run the daily routine in one session, in this order, and keep the user in contro
 5. **Interview prep:** if an interview is within 48 hours, run interview-prep.
 6. **Wrap-up:** short summary of the day (applied, contacted, replies, next steps with dates) and update the trackers.
 
+## With the town
+If `job-search/world.md` exists, the same day runs through the town: fill it in steps 3 and 4 instead of listing in chat (job-hunt-world, "Fill the town"), let the user decide in the houses, then carry out with one approval ("Carry out the decisions").
+
 ## Pace
 - Ask once at the start if the user has limited time today, and shorten the routine to the top items.
 - Batch approvals: one approval per batch of messages, showing every message.

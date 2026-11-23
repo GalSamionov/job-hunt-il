@@ -13,7 +13,7 @@ description: >
 Keep two lists current: applications and outreach contacts. They are the memory of the whole search.
 
 ## Where to keep them
-- If the session offers the Artifact tool with a shared database: create one tracker page with two collections, `applications` and `contacts`, and update rows through the database rather than republishing the page.
+- If the session offers the Artifact tool with a page database: the Job Hunt town is the tracker. Create it with the job-hunt-world skill and keep the collections `applications` and `contacts` there, updating rows through the database rather than republishing the page.
 - Otherwise keep `job-search/applications.csv` and `job-search/contacts.csv` in the working folder (UTF-8 with BOM so Excel shows Hebrew), and offer an XLSX export.
 
 ## Fields
@@ -21,8 +21,9 @@ Keep two lists current: applications and outreach contacts. They are the memory 
 - contacts: id, date, name, title, company, profile_link, channel, message_variant, status, last_contact, next_date, notes.
 
 ## Statuses
-applications: to_apply, applied, screening_call, interview, home_task, offer, rejected, withdrawn, no_answer.
-contacts: prepared, sent, accepted, replied, call_set, cold.
+applications: found, to_apply, skipped, applied, screening_call, interview, home_task, offer, rejected, withdrawn, no_answer.
+contacts: prepared, approved, skipped, sent, accepted, replied, call_set, cold.
+`found`, `to_apply`, `skipped`, `approved` are the town's waiting and decision states; the job-hunt-world skill explains them.
 
 ## Rules
 - Dedupe by link, then by company + title (applications) or profile link (contacts).

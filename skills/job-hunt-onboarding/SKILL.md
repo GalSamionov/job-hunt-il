@@ -19,7 +19,7 @@ Check silently, then report in plain words what works and what is missing:
 - Working folder (needed): create `job-search/` with `cv/` inside.
 - Browser the agent can use (Claude in Chrome or the built-in browser): needed for LinkedIn and job boards. If missing, say how to connect it and continue.
 - Gmail and Google Calendar (optional).
-- Artifact tool (optional): tracker as a shareable page; otherwise files.
+- Artifact tool (optional): the tracker and the personal town live in one private page; otherwise files, and the public town with day files.
 Never ask for or type passwords.
 
 ## Step 3: CV upload and career analysis (the core step)
@@ -50,8 +50,11 @@ Run job-tracker. Import anything the user already applied to.
 ## Step 7: First round together
 Run daily-job-round for the top track (5 to 10 roles) with CV versions. Help the user apply to one role and log it.
 
-## Step 8: From now on
-Explain: "יום חיפוש" every morning; paste any recruiter message for a reply draft; "יש לי ראיון" before interviews; "עדכן את הפרופיל" when goals change; outreach Sunday to Thursday, about 15 to 20 a day. Offer a daily reminder if a scheduling tool exists.
+## Step 8: The town
+Run job-hunt-world only after every question in its gate is answered; if a step above was skipped, go back and ask before building. The town is created from what the user defined in the steps above: the character's level from the career analysis, the CV house from their versions, the daily plan from their targets, the day counter from the day they started searching, and the sourcing house from the first round. Open it and walk the user through one decision in each house.
+
+## Step 9: From now on
+Explain: "בוקר טוב, תמלא לי את העיר להיום" every morning and "תריץ את מה שאישרתי בעיר" after deciding, or "יום חיפוש" for the same routine in chat; paste any recruiter message for a reply draft; "יש לי ראיון" before interviews; "עדכן את הפרופיל" when goals change; outreach Sunday to Thursday, about 15 to 20 a day. Offer a daily reminder if a scheduling tool exists.
 
 ## Resuming
 If onboarding stopped midway, read what exists and continue from the first missing step.
