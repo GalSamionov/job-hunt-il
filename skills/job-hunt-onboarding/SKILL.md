@@ -11,8 +11,29 @@ description: >
 
 Take a new user from install to their first real day of job searching. The heart of onboarding is the CV analysis and the user defining, by themselves, which jobs they are looking for. Track the steps in the task list. Confirm each step before moving on.
 
-## Step 1: Welcome
-In Hebrew, 4 to 5 lines: what the agent does (finds relevant jobs, builds a CV version per role type, prepares recruiter messages, tracks everything, prepares calls and interviews), what stays with the user (every send is approved by them, they log in to sites themselves), and that onboarding takes about 30 to 45 minutes and can stop and resume anytime.
+## Step 1: Welcome, and what is going to happen
+Before any check, question or file request, send this message, adapted only where a capability is missing (for example no Artifact tool: say the town will be the public page with day files; no scheduling tool: leave out the scheduled task). Use plural Hebrew; the form of address is asked later. Then wait for a yes.
+
+> לפני שמתחילים, ככה זה הולך להיראות.
+>
+> **עכשיו, בערך 30 עד 45 דקות.** אפשר לעצור בכל שלב ולחזור.
+> 1. בדיקה קצרה של מה שמחובר אצלכם: דפדפן, מייל ויומן.
+> 2. מעלים קורות חיים. אני מנתח את כל המסלול שלכם, ואתם מתקנים מה שלא מדויק.
+> 3. אתם מגדירים מה מחפשים: תפקידים, רמה, אזור, היקף, מה לא להביא ויעדים יומיים. אני לא מנחש.
+> 4. לכל סוג משרה נבנית גרסת קורות חיים, ואתם מאשרים כל אחת.
+> 5. סבב משרות ראשון ופניות ראשונות למגייסים.
+> 6. בונים לכם עיר: משחק קטן שבו כל בית הוא תחנה בחיפוש. היא נבנית רק אחרי שענינו על הכל.
+> 7. אני מציע משימה שרצה שלוש פעמים ביום, כדי שהחיפוש יתקדם גם כשאתם לא בצ'אט.
+>
+> **מכאן, כל יום:** העיר מתמלאת במשרות ובפניות, אתם מחליטים בבתים, ואני מבצע. אם תבחרו בזה, אגיש לבד למשרות שמתאימות בבירור לכללים שתגדירו, ותראו אותן ברחוב של העיר.
+>
+> **מה תמיד נשאר אצלכם:**
+> - התחברות לאתרים וסיסמאות. אני לא מקליד אותן.
+> - שדה שכר ושאלות סינון. אני עוצר ושואל.
+> - מה נכתב עליכם. אני לא ממציא ניסיון, מספרים או תארים.
+> - הנתונים. הם נשמרים רק בחשבון שלכם.
+>
+> שנתחיל?
 
 ## Step 2: Checks
 Check silently, then report in plain words what works and what is missing:
